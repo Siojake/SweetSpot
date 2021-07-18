@@ -125,10 +125,8 @@ void imageCallback(const sensor_msgs::CompressedImageConstPtr& msg)
 {
   try
   {
-    //    printf("recv\n");
-    cv::Mat image = cv::imdecode(cv::Mat(msg->data),1);//convert compressed image data to cv::Mat
 
-    //    printf("%d \n",msg->data.size());
+    cv::Mat image = cv::imdecode(cv::Mat(msg->data),1);//convert compressed image data to cv::Mat
     if (clifd){
       // cv::imshow("view", image);
       
@@ -138,64 +136,22 @@ void imageCallback(const sensor_msgs::CompressedImageConstPtr& msg)
       gettimeofday(&tv,NULL);
       char * base64;
       base64 =base64Encode((const char *)&(msg->data[0]),msg->data.size(),BASE64_TYPE_STANDARD);
-      //      printf("%s\n",base64);
-
       sprintf(buf,"jpeg:%8d: %8d:%8d",(frames++)&0xffff,(unsigned int)((tv.tv_sec%100000)*1000+tv.tv_usec/1000),strlen(base64));
-      //      printf("%s\n",buf);
-
       
       int r = send( clifd, (void *)buf,strlen(buf),0);
-      //r = send( clifd ,(void *)&(msg->data),msg->data.size(),0);
+
       r=send(clifd, (void*) base64 ,strlen(base64),0);
-      //  sprintf(buf,"\n");
-      //      r=send(clifd,(void*) buf,1,0);
-      // printf("%d:%d\n",(int)msg->data.size(),r);
+
       if (r>0){
 	//i+=r;
       }else{
-	
 	if (r==0){
 	  //socket closed
 	}else{
 	  perror("send");
 	}
-	
       }
     
-      // int i;
-      // char * p = (char *)&(msg->data);
-      
-      // for (i=0; msg->data.size()-i > 8192 ; ){
-      // 	memcpy(buf,&p[i],8192);
-      // 	int r=send(clifd,(void*) buf, 8192,0);
-      // 	if (r>0){
-      // 	  i+=r;
-      // 	}else{
-	  
-      // 	  if (r==0){
-      // 	    //socket closed
-      // 	  }else{
-      // 	    perror("send");
-      // 	  }
-
-      // 	}
-	  
-      // }
-      // // last block
-      // memset(buf,0,8192);
-      // memcpy(buf,&p[i],msg->data.size()-i);
-      // int r= send(clifd,(void*)buf ,8192,0);
-      // if (r>0){
-      // 	i+=r;
-      // }else{
-      // 	if (r==0){
-      // 	  //socket closed
-      // 	}else{ 
-      // 	  perror("send");
-      // 	}// else if (r==0)
-      // }// else if (r>0)
-
-      
       
     } // while ros::ok
     
@@ -265,8 +221,6 @@ int main(int argc, char **argv)
 	  int tmpfd=accept(lstnfd,(struct sockaddr*)&toward,&tl );
 	  if (tmpfd >0){
 	    clifd = tmpfd;
-	    //	  printf("accepted connection from %s, port=%d\n",
-	    //		 inet_ntoa(toward.sin_addr), ntohs(toward.sin_port),clifd);
 	    printf("clifd:%d\n",clifd);
 	    FD_SET(clifd,&RFDS);
 	  }
@@ -281,7 +235,7 @@ int main(int argc, char **argv)
 	  close(clifd);
 	  clifd=0;
 	}
-	//printf("recv:%s\n",buf);
+
 	#define LAST 11
 	
         char *cmds[LAST]={"stp","sit","std","fwd",
@@ -299,51 +253,6 @@ int main(int argc, char **argv)
 	}
 
 	  
-	// if (strncmp(buf,"end",3)==0){
-	//   FD_CLR(clifd,&RFDS);
-	//   close(clifd);
-	//   clifd=0;
-	// }
-	// if (strncmp(buf,"stp",3)==0){
-	//   // command stop
-	//   printf("stop\n");
-	// }
-	// if (strncmp(buf,"sit",3)==0){
-	//   // command sit
-	//   printf("sit\n");
-	// }
-	// if (strncmp(buf,"std",3)==0){
-	//   // command stand
-	//   printf("stand\n");
-	// }
-	// if (strncmp(buf,"lay",3)==0){
-	//   // command laydown
-	//   printf("laydown\n");
-	// }
-	// if (strncmp(buf,"fwd",3)==0){
-	//   // command forward
-	//   printf("forword\n");
-	// }
-	// if (strncmp(buf,"sto",3)==0){
-	//   // command stop
-	//   printf("stop\n");
-	// }
-	// if (strncmp(buf,"bck",3)==0){
-	//   // command backword
-	//   printf("backword\n");
-	// }
-	// if (strncmp(buf,"lft",3)==0){
-	//   // command left
-	//   printf("left\n");
-	// }
-	// if (strncmp(buf,"ctr",3)==0){
-	//   // command cener
-	//   printf("center\n");
-	// }
-	// if (strncmp(buf,"rgt",3)==0){
-	//   // command righr
-	//   printf("right\n");
-	// }
       }
     }
     
