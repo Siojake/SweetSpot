@@ -1,0 +1,1 @@
+../../ros-i2cpwmboard/msg/ServoConfigArray.msg

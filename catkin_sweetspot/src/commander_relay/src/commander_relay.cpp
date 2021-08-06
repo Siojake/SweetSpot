@@ -172,7 +172,7 @@ int main(int argc, char **argv)
   //cv::namedWindow("view");
   cv::startWindowThread();
   ros::Subscriber sub = nh.subscribe("/raspicam_node/image/compressed", 1, imageCallback);
-  ros::Publisher pub = nh.advertise <std_msgs::String> ("cmd",1000);
+  ros::Publisher pub = nh.advertise <std_msgs::String> ("/spot/cmd",1000);
 #define PORT 11320
 #define MAXCONN 2
   // make ready socket
@@ -227,9 +227,10 @@ int main(int argc, char **argv)
 	}
       }
       if (FD_ISSET(clifd,&rfds)){
-	printf("clifd\n");
+	printf("clifd:");
 	char buf[1024];
 	int r = recv(clifd,&buf,1024,0);
+	printf("%s\n",buf);
 	if (r==0){// socket closed
 	  FD_CLR(clifd,&RFDS);
 	  close(clifd);
@@ -240,7 +241,7 @@ int main(int argc, char **argv)
 	
         char *cmds[LAST]={"stp","sit","std","fwd",
 			  "sto","bck","lft","ctr",
-			  "rgt","lay","end"};
+			  "rgt","lie","end"};
 
 	
 	std_msgs::String msg;
