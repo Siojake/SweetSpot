@@ -75,7 +75,7 @@ int main(int argc,char ** argv)
   lc= nh1.advertise < std_msgs::String >("/spot/lcd",100);
   ss= nh1.subscribe("/spot/cmd",100,cmdCallback);
   bv= nh1.subscribe("/spot/SpotStatus",100,SpotStatCallback);
-  ros::Rate loop_ratte(24);
+  ros::Rate loop_rate(24);
   memset(&servos, 0, sizeof(servos));
     
   spot = new Body();

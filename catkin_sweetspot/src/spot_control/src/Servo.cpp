@@ -2,14 +2,14 @@
 
 static char id[]="$id$";
 
-void Servo::init(int i2cno,float amin,float acen,float amax ,
-		 float vmin ,float vcen,float vmax,float _rest){
+void Servo::init(int i2cno,float amin,float amax ,
+		 float vmin ,float vmax,float _rest){
     chNo=i2cno;
     angle.min=amin;
-    angle.center=acen;
+    //    angle.center=acen;
     angle.max=amax;
     config.min=vmin;
-    config.center=vcen;
+    //    config.center=vcen;
     config.max=vmax;
     config.step=(amax-amin)/(vmax-vmin);
     rest=_rest;
