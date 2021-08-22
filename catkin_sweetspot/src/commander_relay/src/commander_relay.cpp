@@ -8,9 +8,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "std_msgs/String.h"
+#include <std_msgs/String.h>
+#include <std_msgs/Float32.h>
 #include <sys/time.h>
 #include <string.h>
+
 
 int lstnfd,clifd;
 
@@ -137,7 +139,7 @@ void imageCallback(const sensor_msgs::CompressedImageConstPtr& msg)
       char * base64;
       base64 =base64Encode((const char *)&(msg->data[0]),msg->data.size(),BASE64_TYPE_STANDARD);
       sprintf(buf,"jpeg:%8d: %8d:%8d",(frames++)&0xffff,(unsigned int)((tv.tv_sec%100000)*1000+tv.tv_usec/1000),strlen(base64));
-      
+      //int r=0;
       int r = send( clifd, (void *)buf,strlen(buf),0);
 
       r=send(clifd, (void*) base64 ,strlen(base64),0);
@@ -163,6 +165,29 @@ void imageCallback(const sensor_msgs::CompressedImageConstPtr& msg)
   }
 }
 
+ros::Publisher lcd;
+
+
+
+void batteryCallback( const std_msgs::Float32ConstPtr & msg)
+{
+  if (lcd !=NULL){
+    float voltage;
+    voltage=(float)msg->data;
+    char buf[44];
+    sprintf(buf,"line1\n%6.2fV",voltage);
+    std_msgs::String putmsg;
+    
+    putmsg.data=buf;
+
+    lcd.publish(putmsg);
+    sprintf(buf,"battery:%6.2f:%6.2f:%6.2f            ",voltage,7.4f,8.4f);
+    buf[32]=0;  
+    int r = send( clifd, (void *)buf,strlen(buf),0);
+      
+  }
+}
+
 int main(int argc, char **argv)
 {
 
@@ -172,7 +197,11 @@ int main(int argc, char **argv)
   //cv::namedWindow("view");
   cv::startWindowThread();
   ros::Subscriber sub = nh.subscribe("/raspicam_node/image/compressed", 1, imageCallback);
+  ros::Subscriber vol = nh.subscribe("/spot/battery",100,batteryCallback);
   ros::Publisher pub = nh.advertise <std_msgs::String> ("/spot/cmd",1000);
+  //ros::Publisher
+  lcd = nh.advertise <std_msgs::String> ("/spot/lcd",1000);
+
 #define PORT 11320
 #define MAXCONN 2
   // make ready socket
@@ -196,7 +225,6 @@ int main(int argc, char **argv)
   FD_ZERO(&RFDS);
   
   FD_SET(lstnfd,&RFDS);
-  
   while (ros::ok()){
     fd_set rfds;
 
