@@ -54,7 +54,9 @@ void cmdCallback(const std_msgs::String::ConstPtr & msg)
 // cmd message callback 
 void SpotStatCallback(const std_msgs::String::ConstPtr & msg)
 {
+  float percent;
 
+  
   ROS_INFO("battery Recv:[%f]",stof(msg->data));
   //body.setBattery(msg->data);
   //build lcd message

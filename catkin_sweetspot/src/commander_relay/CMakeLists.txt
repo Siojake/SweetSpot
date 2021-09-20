@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   image_transport
+  message_generation
 )
 find_package(OpenCV REQUIRED)
 
@@ -50,11 +51,14 @@ find_package(OpenCV REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+add_message_files(
+   FILES
 #   Message1.msg
 #   Message2.msg
-# )
+imu.msg
+tof.msg
+
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -71,10 +75,11 @@ find_package(OpenCV REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   geometry_msgs
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -105,12 +110,14 @@ find_package(OpenCV REQUIRED)
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES image_sub
-#  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs
+#CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
-)
+#)
+
+catkin_package( CATKIN_DEPENDS message_runtime  )
 
 ###########
 ## Build ##
@@ -134,10 +141,24 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  )
+
+
+link_directories(${catkin_LIBRARY_DIRS})
+
+
+
+
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/commander_relay.cpp)
+add_executable(commander_relay_node src/commander_relay.cpp)
+
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -208,11 +229,16 @@ add_executable(${PROJECT_NAME}_node src/commander_relay.cpp)
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-target_link_libraries(
- ${PROJECT_NAME}_node
+
+target_link_libraries( commander_relay_node
  ${catkin_LIBRARIES}
  ${OpenCV_LIBRARIES}
 )
+
+
+
+
+add_dependencies( commander_relay_node  commander_relay_generate_messages_cpp)
 
 install(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

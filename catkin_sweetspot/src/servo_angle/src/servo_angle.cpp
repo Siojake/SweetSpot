@@ -108,14 +108,33 @@ int main(int argc,char ** argv){
   
   rp=nh.advertise<i2cpwm_board::ServoArray> ("/servos_absolute",1000);
   char buf[2048];
+  FILE * fi;
+  printf("argc:%d\n",argc);
+  if (argc == 2){
+    fi=fopen(argv[1],"r");
+  }else{
+    fi=stdin;
+  }
+  printf("argv[1]:%s",argv[1]);
+  printf("fi:%x\n",fi);
+
   ros::Rate loop_rate(1);
   while( ros::ok()){
+    memset(buf,0,2048);
     printf("ch:val,ch:val....#");
-    fgets(buf,2048,stdin);
+    if (fgets(buf,2048,fi)==NULL){
+      break;
+    };
+    if (fi != stdin){
+      printf("%s\n",buf);
+    }
     int ret=parse(buf, &sa);
     if (ret>0){
       rp.publish(sa);
     }
+    //sleep(1);
+    usleep(200*1000);
     ros::spinOnce();
   }
+
 }

@@ -14,7 +14,8 @@
 #include <string.h>
 
 
-int lstnfd,clifd;
+int lstnfd,clifd=0;
+float percent;
 
 typedef enum tagBASE64_TYPE {
     BASE64_TYPE_STANDARD,
@@ -174,17 +175,29 @@ void batteryCallback( const std_msgs::Float32ConstPtr & msg)
   if (lcd !=NULL){
     float voltage;
     voltage=(float)msg->data;
+
+    percent=-9.17*voltage*voltage*voltage+155.8*voltage*voltage-648*voltage-15.5;
+    int pcent=int(percent);
     char buf[44];
-    sprintf(buf,"line1\n%6.2fV",voltage);
+    if (voltage <9.0){
+      sprintf(buf,"%-11s %3d%c","battery",pcent,'%');
+    }  else {
+      sprintf(buf,"Power Plugged  ");
+    }
+    //sprintf(buf,"bat: %5.2f","battery",voltage);
     std_msgs::String putmsg;
     
     putmsg.data=buf;
 
     lcd.publish(putmsg);
-    sprintf(buf,"battery:%6.2f:%6.2f:%6.2f            ",voltage,7.4f,8.4f);
-    buf[32]=0;  
-    int r = send( clifd, (void *)buf,strlen(buf),0);
-      
+
+    // for Remote
+   
+    memset(&buf,0,32);
+    sprintf(buf,"batt:%8.2f: %8.2f:        ",voltage,percent);
+    if (clifd!=0){
+      int r = send( clifd, (void *)buf,strlen(buf),0);
+    }
   }
 }
 
